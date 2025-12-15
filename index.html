@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Click Counter</title>
+
+  <!-- ===== 可調整變數 ===== -->
+  <script>
+    var GAS_API_URL = "https://script.google.com/macros/s/AKfycbwpPPGICLHyZgAPN_osfGdKmIaB_V6ruaMa-XjqijNisARHcP3NkMhV1j10bM6VdROCJw/exec";
+  </script>
+  <!-- ==================== -->
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #111;
+      color: #eee;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    .container {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    button {
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #333;
+    }
+
+    .text {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <button id="btn">點我</button>
+    <div id="text" class="text">目前點擊 0 次</div>
+  </div>
+
+  <script>
+    var count = 0;
+    var btn = document.getElementById("btn");
+    var text = document.getElementById("text");
+
+    btn.onclick = function () {
+      count = count + 1;
+      text.innerHTML = "目前點擊 " + count + " 次";
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", GAS_API_URL, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(JSON.stringify({ action: "insertTime" }));
+    };
+  </script>
+
+</body>
+</html>
