@@ -2,13 +2,11 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Click Counter</title>
+  <title>登入頁面</title>
 
-  <!-- ===== 可調整變數 ===== -->
   <script>
     var GAS_API_URL = "https://script.google.com/macros/s/AKfycbwpPPGICLHyZgAPN_osfGdKmIaB_V6ruaMa-XjqijNisARHcP3NkMhV1j10bM6VdROCJw/exec";
   </script>
-  <!-- ==================== -->
 
   <style>
     body {
@@ -26,6 +24,13 @@
       transform: translateY(-50%);
     }
 
+    input {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      width: 200px;
+    }
+
     button {
       background-color: #222;
       color: #fff;
@@ -39,7 +44,13 @@
       background-color: #333;
     }
 
-    .text {
+    #loading {
+      display: none;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    #message {
       margin-top: 20px;
       font-size: 18px;
     }
@@ -47,35 +58,64 @@
 </head>
 
 <body>
-
   <div class="container">
-    <button id="btn">點我</button>
-    <div id="text" class="text">目前點擊 0 次</div>
+    <h2>登入系統</h2>
+    <input type="text" id="username" placeholder="帳號"><br>
+    <input type="password" id="password" placeholder="密碼"><br>
+    <button id="loginBtn">登入</button>
+
+    <div id="loading">Loading...</div>
+    <div id="message"></div>
   </div>
 
   <script>
-    var count = 0;
-    var btn = document.getElementById("btn");
-    var text = document.getElementById("text");
+    var loginBtn = document.getElementById("loginBtn");
+    var loading = document.getElementById("loading");
+    var message = document.getElementById("message");
 
-    btn.onclick = function () {
-      count = count + 1;
-      text.innerHTML = "目前點擊 " + count + " 次";
+    loginBtn.onclick = function() {
+      var username = document.getElementById("username").value.trim();
+      var password = document.getElementById("password").value.trim();
 
+      if (!username || !password) {
+        message.innerText = "請輸入帳號與密碼";
+        return;
+      }
+
+      // 顯示 loading，禁用按鈕
+      loading.style.display = "block";
+      loginBtn.disabled = true;
+      message.innerText = "";
+
+      // 發送 POST 請求到 GAS
       var xhr = new XMLHttpRequest();
       xhr.open("POST", GAS_API_URL, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
 
-      xhr.onload = function () {
-        console.log("GAS response:", xhr.responseText);
+      xhr.onload = function() {
+        loading.style.display = "none";
+        loginBtn.disabled = false;
+
+        try {
+          var res = JSON.parse(xhr.responseText);
+          if (res.status === "success") {
+            message.innerText = "登入成功";
+          } else {
+            message.innerText = "登入失敗: " + res.message;
+          }
+        } catch(e) {
+          message.innerText = "系統錯誤";
+        }
       };
 
-      xhr.onerror = function () {
-        console.error("Request failed");
+      xhr.onerror = function() {
+        loading.style.display = "none";
+        loginBtn.disabled = false;
+        message.innerText = "無法連線到伺服器";
       };
 
-      xhr.send("insert");
+      xhr.send(JSON.stringify({ username: username, password: password }));
     };
   </script>
-
 </body>
 </html>
